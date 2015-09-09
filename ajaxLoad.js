@@ -1,12 +1,18 @@
-function ajaxLoad(params) {
-	this.params = {
-		type: params.type ? params.type : "GET",
-		url: params.url,
-		query: params.query ? params.query : "",
-		dataType: params.dataType ? params.dataType : "json",
-	},
-	this.isConnecting = false,
-	this.get = function(successCallBack, errorCallBack, completeCallBack) {
+var ajax = (function() {
+	function ajax(params) {
+		this.init(params);
+	}
+	ajax.prototype.init = function(params) {
+		// パラメータ精査
+		this.params = {
+			type: params.type ? params.type : "GET",
+			url: params.url,
+			query: params.query ? params.query : "",
+			dataType: params.dataType ? params.dataType : "json",
+		}
+		this.isConnecting = false;
+	};
+	ajax.prototype.get = function(callBack) {
 		if(this.isConnecting) {
 			return;
 		}
@@ -26,7 +32,7 @@ function ajaxLoad(params) {
 					i++;
 				}
 			}
-		}
+		};
 		console.log(this.params.query);
 		/*
 		// 外のパラメータをつける
@@ -71,8 +77,8 @@ function ajaxLoad(params) {
 			processData: false,
 			dataType: this.params.dataType,
 			success: function (m) {
-				if (successCallBack) {
-					successCallBack();
+				if (callBack.success) {
+					callBack.success();
 				}
 				/*
 				$('#member-list').fadeOut(1000,function() {
@@ -85,8 +91,8 @@ function ajaxLoad(params) {
 				*/
 			},
 			error: function (m) {
-				if (errorCallBack) {
-					errorCallBack();
+				if (callBack.error) {
+					callBack.error();
 				} else {
 
 				}
@@ -98,14 +104,16 @@ function ajaxLoad(params) {
 			},
 			complete: function () {
 				this.isConnecting = false;
-				if (completeCallBack) {
-					completeCallBack();
+				if (callBack.complete) {
+					callBack.complete();
 				}
 			},
 		});
-	}
-}
-var ajax = new ajaxLoad(
+	};
+	return ajax;
+})();
+
+var aj = new ajax(
 	{
 		type: "GET",
 		url: "http://localhost/test",
@@ -116,17 +124,16 @@ var ajax = new ajaxLoad(
 	}
 );
 
-ajax.get(
-	function(){
-		// successCallBack
-		alert('OK');
-	},
-	function() {
-		// errorCallBack 省略可
-		alert('ERROR');
-	},
-	function() {
-		// completeCallBack 省略可
-		alert('COMPLETE');
+aj.get(
+	{
+		success: function() {
+			alert('OK');
+		},
+		error: function() {
+			alert('ERROR');
+		},
+		complete: function() {
+			alert('COMPLETE');
+		}
 	}
 );
