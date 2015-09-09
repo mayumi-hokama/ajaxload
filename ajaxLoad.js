@@ -1,48 +1,54 @@
 var ajax = (function() {
 	function ajax(params) {
-		this.init(params);
+		this.params = params;
+		this.init();
 	}
-	ajax.prototype.init = function(params) {
+	ajax.prototype.init = function() {
 		// パラメータ精査
-		this.params = {
-			type: params.type ? params.type : "GET",
-			url: params.url,
-			data : params.query ? function() {
-				if (typeof this.params.query === "object") {
-					console.log("object");
-					queryObject = this.params.query;
-					this.params.query = "";
-					var i = 0;
-					for (var key in queryObject) {
-						if (queryObject.hasOwnProperty(key)) {
-							if (i != 0) {
-								this.params.query += "&";
-							}
-							this.params.query += key + "=" + queryObject[key];
-							i++;
-						}
-					}
-				}
-			} : "",
+		this.ajaxParameter = {
+			type: this.params.type ? this.params.type : "GET",
+			url: this.params.url,
 			cache: false,
 			contentType: false,
 			processData: false,
-			dataType: params.dataType ? params.dataType : "json",
-			success: params.success ? params.success : undefined,
-			error: params.error ? params.error : function() {
+			dataType: this.params.dataType ? this.params.dataType : "json",
+			success: this.params.success ? this.params.success : undefined,
+			error: this.params.error ? this.params.error : function() {
 				/*
 				isConnecting = false;
 				popClose();
 				openAlertModal(lang_ajax_error);
 				*/
 			},
-			complete: params.complete ? params.complete : function() {
+			complete: this.params.complete ? this.params.complete : function() {
 				this.isConnecting = false;
-			},
+				alert('complete');
+			}
+		};
+
+		queryString = "";
+		if (typeof this.params.query === "object") {
+			console.log("object");
+			var i = 0;
+			for (var key in this.params.query) {
+				if (this.params.query.hasOwnProperty(key)) {
+					if (i != 0) {
+						queryString += "&";
+					}
+					queryString += key + "=" + this.params.query[key];
+					i++;
+				}
+			}
 		}
+		this.ajaxParameter.data = queryString;
+
+		console.log(this.ajaxParameter);
+		//this.ajaxParameter;
+
 		this.isConnecting = false;
 		this.get();
 	};
+
 	ajax.prototype.get = function(callBack) {
 		if(this.isConnecting) {
 			return;
@@ -96,60 +102,13 @@ var ajax = (function() {
 		}
 		*/
 
-		console.log(this.params);
+		console.log(this.ajaxParameter);
 		console.log(this.isConnecting);
 
 		// ajax実行
 		this.isConnecting = true;
-		$.ajax(this.params);
-		
-		/*
-		$.ajax({
-			type: this.params.type,
-			url: this.params.url,
-			data: this.params.query,
-			cache: false,
-			contentType: false,
-			processData: false,
-			dataType: this.params.dataType,
-			success: function (m) {
-				if (callBack.success) {
-					callBack.success();
-				}
-				*/
-				/*
-				$('#member-list').fadeOut(1000,function() {
-					$('#member-list').html(m).fadeIn('fast', function(){
-						isConnecting = false;
-						popClose();
-					});
-					setPagination(parseInt((MAX_PAGE_NUM - 1) / DEFAULT_PER_PAGE) + 1);
-				});
-				*/
-			/*
-			},
-			error: function (m) {
-				if (callBack.error) {
-					callBack.error();
-				} else {
+		$.ajax(this.ajaxParameter);
 
-				}
-				*/
-				/*
-				isConnecting = false;
-				popClose();
-				openAlertModal(lang_ajax_error);
-				*/
-				/*
-			},
-			complete: function () {
-				this.isConnecting = false;
-				if (callBack.complete) {
-					callBack.complete();
-				}
-			},
-		});
-	*/
 	};
 	return ajax;
 })();
@@ -165,11 +124,13 @@ var aj = new ajax(
 		success: function() {
 			alert('OK');
 		},
+		/*
 		error: function() {
 			alert('ERROR');
 		},
 		complete: function() {
 			alert('COMPLETE');
 		}
+		*/
 	}
 );
