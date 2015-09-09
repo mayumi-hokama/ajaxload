@@ -1,13 +1,13 @@
-var isConnecting = false;
-var ajaxLoad = {
-	params : {
-		type: "GET",
-		url: "",
-		query: "" || {},
-		dataType: "json",
+function ajaxLoad(params) {
+	this.params = {
+		type: params.type ? params.type : "GET",
+		url: params.url,
+		query: params.query ? params.query : "",
+		dataType: params.dataType ? params.dataType : "json",
 	},
-	data: function(successCallBack, errorCallBack, completeCallBack) {
-		if(isConnecting) {
+	this.isConnecting = false,
+	this.get = function(successCallBack, errorCallBack, completeCallBack) {
+		if(this.isConnecting) {
 			return;
 		}
 		// queryパラメータを文字列へ
@@ -58,10 +58,10 @@ var ajaxLoad = {
 		*/
 
 		console.log(this.params);
-		console.log(isConnecting);
+		console.log(this.isConnecting);
 
 		// ajax実行
-		isConnecting = true;
+		this.isConnecting = true;
 		$.ajax({
 			type: this.params.type,
 			url: this.params.url,
@@ -97,26 +97,26 @@ var ajaxLoad = {
 				*/
 			},
 			complete: function () {
-				isConnecting = false;
+				this.isConnecting = false;
 				if (completeCallBack) {
 					completeCallBack();
 				}
 			},
 		});
-	},
-};
+	}
+}
+var ajax = new ajaxLoad(
+	{
+		type: "GET",
+		url: "http://localhost/test",
+		query: {
+			a:"ああああ"
+		},
+		dataType: "html"
+	}
+);
 
-ajaxLoad.params = {
-	type: "GET",	// 省略可(デフォルトGET)
-	url: "http://localhost/test",
-	/*/
-	query: {
-		aa:"aaaaa",
-		bb:"bbbbb",
-	} // ない場合は省略
-	//*/
-};
-ajaxLoad.data(
+ajax.get(
 	function(){
 		// successCallBack
 		alert('OK');
