@@ -5,45 +5,42 @@ var ajax = (function() {
 	}
 	ajax.prototype.init = function() {
 		// パラメータ精査
+		var _this = this;
 		this.ajaxParameter = {
-			type: this.params.type ? this.params.type : "GET",
-			url: this.params.url,
+			type: _this.params.type ? _this.params.type : "GET",
+			url: _this.params.url,
+			data: (function() {
+				queryString = "";
+				if (typeof _this.params.query === "object") {
+					var i = 0;
+					for (var key in _this.params.query) {
+						if (_this.params.query.hasOwnProperty(key)) {
+							if (i != 0) {
+								queryString += "&";
+							}
+							queryString += key + "=" + _this.params.query[key];
+							i++;
+						}
+					}
+				} else if (_this.params.query) {
+					if (_this.params.query.length > 0) {
+						queryString += _this.params.query;
+					}
+				}
+				return queryString;
+			})(),
 			cache: false,
 			contentType: false,
 			processData: false,
-			dataType: this.params.dataType ? this.params.dataType : "json",
-			success: this.params.success ? this.params.success : undefined,
-			error: this.params.error ? this.params.error : function() {
-				/*
-				isConnecting = false;
-				popClose();
-				openAlertModal(lang_ajax_error);
-				*/
+			dataType: _this.params.dataType ? _this.params.dataType : "json",
+			success: _this.params.success ? _this.params.success : undefined,
+			error: _this.params.error ? this.params.error : function() {
 			},
-			complete: this.params.complete ? this.params.complete : function() {
-				this.isConnecting = false;
+			complete: _this.params.complete ? this.params.complete : function() {
+				_this.isConnecting = false;
 				alert('complete');
 			}
 		};
-
-		queryString = "";
-		if (typeof this.params.query === "object") {
-			console.log("object");
-			var i = 0;
-			for (var key in this.params.query) {
-				if (this.params.query.hasOwnProperty(key)) {
-					if (i != 0) {
-						queryString += "&";
-					}
-					queryString += key + "=" + this.params.query[key];
-					i++;
-				}
-			}
-		}
-		this.ajaxParameter.data = queryString;
-
-		console.log(this.ajaxParameter);
-		//this.ajaxParameter;
 
 		this.isConnecting = false;
 		this.get();
@@ -53,58 +50,6 @@ var ajax = (function() {
 		if(this.isConnecting) {
 			return;
 		}
-		// queryパラメータを文字列へ
-		/*
-		console.log(this.params.query);
-		if (typeof this.params.query === "object") {
-			console.log("object");
-			queryObject = this.params.query;
-			this.params.query = "";
-			var i = 0;
-			for (var key in queryObject) {
-				if (queryObject.hasOwnProperty(key)) {
-					if (i != 0) {
-						this.params.query += "&";
-					}
-					this.params.query += key + "=" + queryObject[key];
-					i++;
-				}
-			}
-		};
-		console.log(this.params.query);
-		*/
-		/*
-		// 外のパラメータをつける
-		if(this.params.query) {
-			idx = this.params.query.indexOf("&");
-			// 見つかった場合
-			if( idx > -1) {
-				this.params.query += "&";
-			}
-		}
-		this.params.query += "page=" + curPage;
-
-		// ソート条件
-		var target = $("th.asc, th.desc").attr("data-target");
-		if (typeof target == "undefined") {
-		} else {
-			this.params.query += '&' + target + '=';
-			if($('th.asc').length == 1) {
-				this.params.query += 'asc';
-			} else {
-				this.params.query += 'desc';
-			}
-		}
-
-		// 検索条件
-		if ($("#searchValue").val() != "") {
-			this.params.query += '&word='+ $('#searchValue').val();
-		}
-		*/
-
-		console.log(this.ajaxParameter);
-		console.log(this.isConnecting);
-
 		// ajax実行
 		this.isConnecting = true;
 		$.ajax(this.ajaxParameter);
@@ -124,10 +69,10 @@ var aj = new ajax(
 		success: function() {
 			alert('OK');
 		},
-		/*
 		error: function() {
 			alert('ERROR');
 		},
+		/*
 		complete: function() {
 			alert('COMPLETE');
 		}
